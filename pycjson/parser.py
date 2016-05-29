@@ -67,10 +67,10 @@ reset()
 # convenience functions
 #
 
-def isIdentOrQualCandidate(part):
+def isIdentifierCandidate(part):
     part = str(part)
     return str.isalpha(part[0]) or (part[0] == '_') or (part == AnonymousEnum)
-def isQual(part): return part in (KeywordConst, KeywordPtr)
+def isConst(part): return part == KeywordConst
 def isPointer(part): return part == KeywordPtr
 def isAnonymous(t): return t.identifier == AnonymousEnum
 def isDeclKnown(t): return typeMap.has_key(t.identifier)
@@ -122,21 +122,10 @@ def parseVarInfo(t):
     subscripts = []
     
     for part in t.split(' '):
-        if isIdentOrQualCandidate(part):
-            if isQual(part):
-                # must be qualifier part
-                if part == KeywordConst:
-                    quals.append(QualConst)
-            else:
-                # must be identifier part
-                identifier = part
-                
-        elif isPointer(part):
-            # the type is a pointer
-            quals.append(QualPtr)
-        else:
-            # must be subscript
-            subscripts = parseSubscripts(part)
+        if isPointer(part): quals.append(QualPtr)
+        elif isConst(part): quals.append(QualConst)
+        elif isIdentifierCandidate(part): identifier = part
+        else: subscripts = parseSubscripts(part)
     
     return VarInfo(findOrCreateDeclForIdent(identifier), quals, subscripts)
             
