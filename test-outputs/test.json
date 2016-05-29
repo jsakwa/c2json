@@ -32,16 +32,14 @@
         "identifier" : "say_hello",
         "kind" : "function",
         "fields" : [
-            {"identifier" : "msg", "kind" : "const greeting_t *"}]
-
+            {"identifier" : "msg", "kind" : "const greeting_t *"}],
         "return" : "void"
     },
     {
         "identifier" : "do_math",
         "kind" : "function",
         "fields" : [
-            {"identifier" : "x", "kind" : "int32_t *"}]
-
+            {"identifier" : "x", "kind" : "int32_t *"}],
         "return" : "void"
-    },
+    }
 ]

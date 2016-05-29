@@ -53,7 +53,7 @@ def stringifyQuals(rng):
 # types
 #
 
-class TypeInfo:
+class VarInfo:
     """
     decl type decorator that adds quals/subscrits etc.
     """
@@ -82,7 +82,7 @@ class TypeInfo:
         return stringifyQuals(self.quals) + str(self.declType.identifier) + subs
 
 
-class StructTypeDecl:
+class StructDecl:
     """
     introduces a new type name
     """
@@ -95,7 +95,7 @@ class StructTypeDecl:
         return 'rec %s {%s}' %(self.identifier, stringifyRange(self.fields))
         
         
-class EnumTypeDecl:
+class EnumDecl:
     """
     introduces a new enumerated type
     """
@@ -108,18 +108,18 @@ class EnumTypeDecl:
         return 'enum %s {%s}' %(self.identifier, stringifyRange(self.fields))   
 
 
-class FunctionTypeDecl:
+class FunctionDecl:
     """
     introduces a new function type
     """
-    def __init__(self, identifier, fields, returnTypeInfo):
+    def __init__(self, identifier, fields, returnInfo):
         self.kind = KindFunction
         self.identifier = identifier
         self.fields = fields 
-        self.returnTypeInfo = returnTypeInfo
+        self.returnInfo = returnInfo
     
     def __str__(self):
-        ret = str(self.returnTypeInfo)
+        ret = str(self.returnInfo)
         args = stringifyRange(self.fields)
         return 'fun %s {%s} -> %s' %(self.identifier, args, ret)
     
@@ -137,7 +137,7 @@ class VarDecl:
         return self.identifier + ': ' + str(self.typeInfo)        
 
 
-class BuiltInDecl:
+class BuiltinDecl:
     """
     introduces a new built-in type
     """

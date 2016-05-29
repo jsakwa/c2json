@@ -31,7 +31,7 @@ AnonymousEnum   = '(anonymous)'
 
 
 # build-in type initialier list
-builtInTypeInitList = (
+builtinInitList = (
     ('void',    0),   
     ('char',    1),   
     ('int8_t',  1),
@@ -47,8 +47,8 @@ builtInTypeInitList = (
     ('double',  8))
 
 # construct all builtin types from the initializer list
-builtInTypes = [BuiltInDecl(ident, width)
-                for (ident, width) in builtInTypeInitList]
+builtins = [BuiltinDecl(ident, width)
+                for (ident, width) in builtinInitList]
 
 typeMap = None
 
@@ -58,7 +58,7 @@ def reset():
     """
     global typeMap
     typeMap = {}
-    for t in  builtInTypes: typeMap[t.identifier] = t
+    for t in  builtins: typeMap[t.identifier] = t
 
 # initialize type map with builtin types
 reset()
@@ -113,7 +113,7 @@ def parseSubscripts(part):
     return [int(sub[1:]) for sub in subs]
 
 
-def parseTypeInfo(t):
+def parseVarInfo(t):
     """
     parse type information
     """
@@ -138,7 +138,7 @@ def parseTypeInfo(t):
             # must be subscript
             subscripts = parseSubscripts(part)
     
-    return TypeInfo(findOrCreateDeclForIdent(identifier), quals, subscripts)
+    return VarInfo(findOrCreateDeclForIdent(identifier), quals, subscripts)
             
 
 def  parseVarFields(fields):
@@ -146,7 +146,7 @@ def  parseVarFields(fields):
     decode field set
     """
     fields = [valsForKeys(f, FieldIdent, FieldKind) for f in fields]
-    return [VarDecl(identifier, parseTypeInfo(kind)) for (identifier, kind) in fields]
+    return [VarDecl(identifier, parseVarInfo(kind)) for (identifier, kind) in fields]
 
     
 def parseStruct(struct):
@@ -154,7 +154,7 @@ def parseStruct(struct):
     decode structure
     """
     identifier, fields = valsForKeys(struct, FieldIdent, FieldFields)
-    t = StructTypeDecl(identifier, parseVarFields(fields))
+    t = StructDecl(identifier, parseVarFields(fields))
     addDecl(t)
     
     
@@ -165,9 +165,9 @@ def parseFunction(func):
     identifier, fields, returnType = \
             valsForKeys(func, FieldIdent, FieldFields, FieldReturn)
     
-    t = FunctionTypeDecl(identifier,
+    t = FunctionDecl(identifier,
                          parseVarFields(fields),
-                         parseTypeInfo(returnType))
+                         parseVarInfo(returnType))
     addDecl(t)
 
 
@@ -184,7 +184,7 @@ def parseEnum(enum):
     parse an enumerated type
     """
     identifier, fields = valsForKeys(enum, FieldIdent, FieldFields)
-    t = EnumTypeDecl(identifier, [parseConstant(c) for c in fields])
+    t = EnumDecl(identifier, [parseConstant(c) for c in fields])
     if isAnonymous(t) and isDeclKnown(t):
         # handle adding fields to anonymously specified enumerated type
         enum = typeMap[identifier]
