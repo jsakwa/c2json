@@ -6,4 +6,4 @@ import sys
 import parser
 
 with open(sys.argv[1]) as inf:    
-    for t in parser.parse(inf).itervalues(): print t
+    for t in parser.parse(inf): print t

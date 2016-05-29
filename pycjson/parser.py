@@ -51,14 +51,17 @@ builtins = [BuiltinDecl(ident, width)
                 for (ident, width) in builtinInitList]
 
 typeMap = None
+declList = None
 
 def reset():
     """
     reset the parser to intial state
     """
-    global typeMap
+    global typeMap, declList
     typeMap = {}
+    declList = builtins[:]
     for t in  builtins: typeMap[t.identifier] = t
+
 
 # initialize type map with builtin types
 reset()
@@ -99,6 +102,7 @@ def  addDecl(decl):
     """
     # FIXME we need to handle the case where there is an existing unresolved
     # type in the map
+    declList.append(decl)
     typeMap[decl.identifier] = decl
 #
 # parser components
@@ -199,11 +203,11 @@ def parse(inf):
     """
     for rec in json.load(inf):
         parser[rec[FieldKind]](rec)
-    return typeMap
+    return declList
         
     
 def getResults():
     """
     get the parser result
     """
-    return typeMap
+    return declList
