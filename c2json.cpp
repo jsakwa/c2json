@@ -134,6 +134,7 @@ using namespace std;
 #define JsonAssign          " : "
 #define JsonSep             ", "
 
+
 // field definitions
 #define IdentField          FieldNameIdent JsonAssign
 #define KindField           FieldNameKind JsonAssign
@@ -150,11 +151,14 @@ using namespace std;
 // globals
 //
 
+// parsed input file paths
 static std::set<const FileEntry*> inputFiles;
+
 
 //
 // helper function
 //
+
 
 static std::string toString(QualType type)
 {
@@ -163,6 +167,18 @@ static std::string toString(QualType type)
         return "bool";
     return str;
 }
+
+
+// creates the start of a new record
+static void writeRecordBegin(void)
+{
+    static const char* delim = Indent "{\n";
+    
+    cout << delim;
+    
+    delim =  ",\n" Indent "{\n";
+}
+
 
 static bool isTemplateContext(const DeclContext* ctx)
 {
@@ -206,8 +222,11 @@ static const std::string quotify(const std::string& s) {
 // write the common header used by all type classes
 static void writeCommon(const NamedDecl* decl, std::string kindName)
 {
-    cout << Indent "{\n"
-         << IndentL2 IdentField
+    // start the rcord
+    writeRecordBegin();
+    
+    // write the header fields
+    cout << IndentL2 IdentField
          << quotify(identNameOf(decl))
          << ",\n" 
          << IndentL2 KindField
@@ -245,7 +264,7 @@ static void writeFieldList(const T& recDecl)
         delim = ",\n";
     }
     
-    cout << "]\n";
+    cout << "]";
 }
 
 
@@ -266,7 +285,7 @@ static void writeEnumBody(const EnumDecl* enumDecl)
         sep = ",\n";
     }
     
-    cout << "]\n" Indent "},\n";
+    cout << "]\n" Indent "}";
 }
 
 
@@ -278,7 +297,7 @@ static void writeStructBody(const TagDecl* tagDecl)
     
     writeFieldList(recDecl);
     
-    cout << Indent "},\n";
+    cout << "\n" Indent "}";
 }
 
 
@@ -359,9 +378,9 @@ public:
             writeFieldList(func);
             
             // write return type
-            cout << "\n" IndentL2 FieldNameReturn JsonAssign
+            cout << ",\n" IndentL2 FieldNameReturn JsonAssign
                  << quotify(toString(func->getReturnType()))
-                 << "\n" Indent "},\n";
+                 << "\n" Indent "}";
         }
     }
 };
@@ -416,7 +435,7 @@ int main(int argc, const char **argv)
     auto& tool = toolForCommandLineOptions(argc, argv);
     int result = tool.run(newFrontendActionFactory(&finder).get());
   
-    cout << "]\n";
+    cout << "\n]\n";
   
     return result;
 }
