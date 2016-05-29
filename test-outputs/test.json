@@ -1,0 +1,47 @@
+[
+    {
+        "identifier" : "(anonymous)",
+        "kind" : "enum",
+        "fields" : [
+            {"identifier" : "item0", "value" : 0},
+            {"identifier" : "item1", "value" : 1},
+            {"identifier" : "item2", "value" : 3}]
+    },
+    {
+        "identifier" : "enum2_t",
+        "kind" : "enum",
+        "fields" : [
+            {"identifier" : "enum2_item1", "value" : 0},
+            {"identifier" : "enum2_item3", "value" : 1}]
+    },
+    {
+        "identifier" : "saying_t",
+        "kind" : "struct",
+        "fields" : [
+            {"identifier" : "it_was", "kind" : "uint32_t"}]
+    },
+    {
+        "identifier" : "greeting_t",
+        "kind" : "struct",
+        "fields" : [
+            {"identifier" : "hello", "kind" : "char *"},
+            {"identifier" : "world", "kind" : "char *"},
+            {"identifier" : "array", "kind" : "saying_t [10][2]"}]
+    },
+    {
+        "identifier" : "say_hello",
+        "kind" : "function",
+        "fields" : [
+            {"identifier" : "msg", "kind" : "const greeting_t *"}]
+
+        "return" : "void"
+    },
+    {
+        "identifier" : "do_math",
+        "kind" : "function",
+        "fields" : [
+            {"identifier" : "x", "kind" : "int32_t *"}]
+
+        "return" : "void"
+    },
+]

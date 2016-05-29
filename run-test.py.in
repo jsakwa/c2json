@@ -1,0 +1,56 @@
+import os, json, subprocess, unittest
+
+config = {
+    'c2Json': "${INTROSPECTOR_PATH}",
+    'input': "${INPUT_PATH}",
+    'output': "${OUTPUT_PATH}"
+}
+
+class c2JsonTestCase():
+    def setUp(self):
+        global args
+        self.actual_output = json.loads(subprocess.check_output([
+            config['c2json'],
+            self.input_file,
+            "--"
+        ]))
+        with open(output_file) as of:
+            self.expected_output = json.load(of)
+
+    def tearDown(self):
+        self.actual_output = None
+        self.expected_output = None
+        
+    def compareFunctions(self, actual, expected):
+        pass
+        
+    def compareClases(self, actual, expected):
+        pass
+        
+    def test_namespaces(self):
+        pass
+        
+    def test_classes(self):
+        pass
+        
+    def test_functions(self):
+        pass
+        
+input_suite = unittest.TestSuite()
+
+for (dir, _, files) in os.walk(config["input"]):
+    for file in files:
+        input_file = os.path.join(dir, file)
+        output_file = os.path.join(dir.replace(config["input"], config["output"], 1), file + ".json")
+        
+        newclass = type(input_file, (c2JsonTestCase, unittest.TestCase), {})
+        newclass.input_file = input_file
+        newclass.output_file = output_file
+        
+        file_suite = unittest.TestLoader().loadTestsFromTestCase(newclass)        
+        input_suite.addTest(file_suite)
+
+if __name__ == '__main__':
+    unittest.main(argv=["asdf"])
+
+
