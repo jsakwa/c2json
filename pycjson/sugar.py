@@ -74,6 +74,20 @@ class VarInfo:
     
     def isArray(self):
         return len(self.subscripts) != 0
+    
+    def isVoid(self):
+        """
+        returns true if the function returns void
+        """
+        # FIXME should devise a cleaner way to test for void
+        return self.declType.identifier == 'void'
+    
+    def isString(self):
+        """
+        true if the type has a natural interpertation as a CString
+        """
+        # FIXME should devise a cleaner way to test for char
+        return self.isPointer() and (self.declType.identifier == 'char')
 
     def __str__(self):
         subs = ''
