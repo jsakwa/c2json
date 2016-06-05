@@ -47,6 +47,15 @@ class OutputBuffer:
         
     def __str__(self):
         return ''.join(self.buffer)
+
+
+def stripTypeDelim(s):
+    """
+    strip the '_t' delimeter
+    """
+    if (len(s) > 2) and (s[-2:] == '_t'):
+        s = s[:-2]
+    return s
     
     
 def camelize(s):
@@ -54,8 +63,7 @@ def camelize(s):
     convert to camel case 
     """
     original = s    
-    if (len(s) > 2) and (s[-2:] == '_t'):
-        s = s[:-2]
+    s = stripTypeDelim(s)
     s = s.title()
     s = s.replace('_', '')
     if s == '':

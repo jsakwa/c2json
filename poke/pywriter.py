@@ -116,11 +116,11 @@ def writeFieldDecoder(out, f):
     t = f.typeInfo.declType
     rt = util.resolveDecl(t)
     if rt.kind == sugar.KindStruct:
-        out.writeln(normalizeType(rt.identifier), '.loadFromStream(v, s)')
+        out.writeln('self.', normalizeField(f.identifier),'.loadFromStream(s)')
     elif f.typeInfo.isString():
-        out.writeln('v.', normalizeField(f.identifier), ' = s.getCString()')
+        out.writeln('self.', normalizeField(f.identifier), ' = s.getCString()')
     else:
-        out.writeln('v.',
+        out.writeln('self.',
                     normalizeField(f.identifier),
                     ' = s.get',
                     normalize(rt.identifier),
@@ -131,8 +131,7 @@ def writeDecoder(out, t):
     """
     write the struct initializer that takes a stream as an argument
     """
-    out.writeln('@staticmethod')
-    out.writeln('def loadFromStream(v, s):')
+    out.writeln('def loadFromStream(self, s):')
     out.incIndent()
     for f in t.fields:
         writeFieldDecoder(out, f)
@@ -174,7 +173,7 @@ def writeStruct(t):
     writeInitBody(out, t)
     out.writeln('if s != None:')
     out.incIndent()
-    out.writeln('self.loadFromStream(self, s)')
+    out.writeln('self.loadFromStream(s)')
     out.decIndent(2)
     out.writeln()
     writeDecoder(out, t)

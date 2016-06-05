@@ -70,9 +70,15 @@ class VarInfo:
                 and ((len(self.quals) > 1) or (self.quals[0] == QualPtr))
         
     def isConst(self):
+        """
+        true if the value type is const
+        """
         return self.hasQual() and (self.quals[-1] == QualConst)
     
     def isArray(self):
+        """
+        true if the type is an array
+        """
         return len(self.subscripts) != 0
     
     def isVoid(self):
@@ -84,10 +90,40 @@ class VarInfo:
     
     def isString(self):
         """
-        true if the type has a natural interpertation as a CString
+        true if the field has a natural interpertation as a CString
         """
         # FIXME should devise a cleaner way to test for char
         return self.isPointer() and (self.declType.identifier == 'char')
+    
+    def isInputByRef(self):
+        """
+        true if the field has a natural interperation as "input-by-reference"
+        """
+        return (len(self.quals) > 1) and (self.quals[0] == QualPtr)
+
+    def isOutputByRef(self):
+        """
+        true if the field has a natural interpertation as "output-by-reference"
+        """
+        return not self.isInputByRef() and self.isPointer()
+    
+    
+    def getInputArgumentModifier(self):
+        """
+        returns the argument modifier needed to make correct call (i.e. '&')
+        """
+        if self.isPointer():
+            return '&'
+        return ''
+    
+    def getOutputArgumentModifier(self):
+        """
+        returns the output argument modifier needed to make the correct call
+        """
+        if self.isPointer():
+            return ''
+        return '&'
+    
 
     def __str__(self):
         subs = ''
