@@ -24,9 +24,26 @@ normallizeFunc = util.camelize
 normalizeField = util.downCamelize
 normalizeType  = util.camelize
 
-def nameForType(t, mode):
+def funcNameForType(t, mode):
     return 'stream_' + mode + '_' + util.stripTypeDelim(t.identifier)
-    
+
+
+def funcNameForField(f, mode):
+    if f.typeInfo.isString():
+        return 'stream_' + mode + '_cstring'     
+    return funcNameForType(util.resolveDecl(f.typeInfo.declType), mode)
+
+
+def argForField(f, pre):
+    return '&' + pre + f.identifier
+
+
+def flattenedDims(f):
+    d = 1
+    for i in f.typeInfo.subscripts:
+        d *= i
+    return str(d)
+        
 
 #
 # create some buffers objects to hold the output
@@ -45,11 +62,16 @@ declsSeen = {}
 #
 
 
-def writeArray(out, f):
+def writeArray(out, f, s, mode, pre):
     """
     write an array encoder/decoder
     """
-    # FIXME TBD (NOTE we also need to cache these somewhere)
+    fn = funcNameForField(f, mode)
+    out.writeln('stream_code_array(', s,
+              ', ', fn,
+              ', ', argForField(f, pre),
+              ', ', flattenedDims(f),
+              ', sizeof(', f.typeInfo.declType.identifier, '));')
 
  
 def writeField(out, f, s, mode, pre='_'):
@@ -61,16 +83,12 @@ def writeField(out, f, s, mode, pre='_'):
     # make sure to visit the type
     transcoders[rt.kind](rt)
     
-    if f.typeInfo.isString():
-        out.writeln('stream_', mode, '_cstring(', s,', &', pre,
-                    f.identifier ,');')
+    if f.typeInfo.isArray():
+        pass
+        writeArray(out, f, s, mode, pre)
     else:
-        cast = ''
-        if rt != f.typeInfo.declType:
-            # cast-away type alias
-            cast = '(' + rt.identifier + '*)'
-        out.writeln(nameForType(rt, mode),
-                      '(', s, ', ', cast, '&', pre, f.identifier, ');')
+        fn = funcNameForField(f, mode)
+        out.writeln(fn, '(', s, ', ', argForField(f, pre), ');')
         
 
 def visitPrerequisites(t):
@@ -93,7 +111,7 @@ def writeStructEncoderOrDecoder(t, mode):
     # visit prerequisites before proceeding
     visitPrerequisites(t)
     
-    out.writeln('static void ', nameForType(t, mode),
+    out.writeln('static void ', funcNameForType(t, mode),
                 '(stream_t* s, ', t.identifier, '* v) {')
     
     out.incIndent()
