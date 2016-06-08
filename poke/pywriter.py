@@ -59,20 +59,58 @@ declsSeen = {}
 # struct encoder 
 #
     
-def writeArrayEncoder(out, t):
+structs.writeln("""
+def codeArray(subs, arr, coder):
+    count = subs[0]
+    if len(subs) == 1:
+        # base case
+        for i in range(count):
+            coder(arr[i])
+    else:
+        subs = subs[1:]
+        arr  = arr[1:]
+        for i in range(count):
+            # encode dimension K + 1
+            codeArray(subs, arr, coder)
+            
+""")
+
+    
+    
+def writeArrayEncoder(out, f, pre):
     """
     handle encoding an array
     """
-    pass
-    # FIXME TBD (NOTE we also need to cash these somewhere)
+    t = f.typeInfo.declType
+    rt = util.resolveDecl(t)
     
-
+    # select the encoder 
+    coder = ''
+    if rt.kind == sugar.KindStruct:
+        coder = 'lambda obj: obj.writeToStream(s))'
+    if f.typeInfo.isString():
+        coder = 'lambda obj: s.putCString(obj)'
+    else:
+        coder = 'lambda obj: s.put' +  normalize(rt.identifier) + '(obj)'
+    
+    # perform the encoding 
+    out.writeln('codeArray(',
+                    pre,
+                    normalizeField(f.identifier),
+                    ', ',
+                    str(tuple(f.typeInfo.subscripts)),
+                    ', ',
+                    coder)
+        
+    
 def writeFieldEncoder(buf, f, pre):
     """
     get decoder value for input type
     """
     t = f.typeInfo.declType
     rt = util.resolveDecl(t)
+    if f.typeInfo.isArray():
+        writeArrayEncoder(buf, f, pre)
     if rt.kind == sugar.KindStruct:
         buf.writeln(pre, normalizeField(f.identifier), '.writeToStream(s)')
     elif f.typeInfo.isString():
@@ -84,6 +122,7 @@ def writeFieldEncoder(buf, f, pre):
                     pre,
                     normalizeField(f.identifier),
                     ')')
+    
 
 
 def writeEncoder(out, t):
@@ -101,13 +140,11 @@ def writeEncoder(out, t):
 # struct decoer
 #
 
-
-def writeArrayDecoder(out, f):
+def writeArrayDecoder(out, f, pre):
     """
-    write an array decoder
+    handle decoding an array
     """
-    # FIXME TBD (NOTE we also need to cache these somewhere)
-
+        
 
 def writeFieldDecoder(out, f):
     """
